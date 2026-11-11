@@ -1,9 +1,9 @@
 :root { color-scheme: dark; }
 * { box-sizing: border-box; }
-html { min-height: 100%; background: #080a10; }
+html { min-height: 100%; background: #111318; }
 body { margin: 0; min-height: 100svh; color: #fff; font-family: Arial, 'Noto Sans KR', sans-serif; }
-.background { position: fixed; inset: 0; z-index: -1; background: linear-gradient(#080b13c9,#080b13ef), url('assets/cover.png') center/cover no-repeat; }
-.intro-screen { position: fixed; inset: 0; background: #000; display: grid; place-items: center; text-align: center; z-index: 5; animation: disappear .7s ease 1.3s forwards; pointer-events: none; }
+.background { position: fixed; inset: 0; z-index: -1; background: radial-gradient(ellipse at 50% 0%, #1b2029 0%, #14171d 45%, #111318 100%); }
+.intro-screen { position: fixed; inset: 0; background: #111318; display: grid; place-items: center; text-align: center; z-index: 5; animation: disappear .7s ease 1.3s forwards; pointer-events: none; }
 .intro-screen h1 { font-size: clamp(28px,8vw,44px); margin: 24px; }
 .player { width: 100%; max-width: 440px; margin: 0 auto; padding: max(24px,env(safe-area-inset-top)) 24px max(32px,env(safe-area-inset-bottom)); display: flex; flex-direction: column; align-items: center; }
 .album-art { display: block; padding: 0; border: 0; background: none; width: 100%; aspect-ratio: 1; border-radius: 12px; overflow: hidden; box-shadow: 0 12px 40px #0005; }
@@ -48,3 +48,4 @@ dialog button { float: right; width: 44px; height: 44px; border: 0; background: 
 @keyframes disappear { to { opacity: 0; visibility: hidden; } }
 @media (min-width: 600px) { .player { padding-top: 40px; padding-bottom: 48px; } }
 @media (prefers-reduced-motion: reduce) { .intro-screen { display: none; } }
+
