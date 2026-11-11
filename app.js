@@ -46,7 +46,18 @@ async function loadLyrics(track) { const request = ++lyricRequest; lyricLines = 
 function select(i, autoplay = false) { if (!tracks.length) return; const previous = current; current = (i + tracks.length) % tracks.length; playbackRequest++; const t = tracks[current]; audio.src = t.audio; $('track-title').textContent = t.title; $('track-artist').textContent = t.artist || album.artist; $('elapsed').textContent = $('duration').textContent = '0:00'; $('seek').value = 0; loadLyrics(t); renderList(); if (autoplay) start(); if (current !== previous) animateFilm(i < previous ? -1 : 1); }
 function start() { const request = ++playbackRequest; audio.play().catch(error => { if (request === playbackRequest && error.name !== 'AbortError') $('track-title').textContent = '음원을 재생할 수 없어요'; }); }
 $('play').addEventListener('click', () => audio.paused ? start() : audio.pause());
-$('previous').addEventListener('click', () => { if (audio.currentTime > 5) audio.currentTime = 0; else select(current-1,true); }); $('next').addEventListener('click', () => select(current+1,true));
+const PREVIOUS_TRACK_WINDOW_SECONDS = 3;
+$('previous').addEventListener('click', () => {
+  if (audio.currentTime > PREVIOUS_TRACK_WINDOW_SECONDS) {
+    audio.currentTime = 0;
+    $('elapsed').textContent = '0:00';
+    $('seek').value = 0;
+    updateLyrics();
+  } else {
+    select(current - 1, true);
+  }
+});
+$('next').addEventListener('click', () => select(current + 1, true));
 const playIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4v16l12-8z"/></svg>'; const pauseIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h4v16H6zm8 0h4v16h-4z"/></svg>';
 audio.addEventListener('play', () => { $('play').innerHTML = pauseIcon; $('play').setAttribute('aria-label','일시정지'); renderList(); }); audio.addEventListener('pause', () => { $('play').innerHTML = playIcon; $('play').setAttribute('aria-label','재생'); renderList(); }); audio.addEventListener('ended', () => select(current+1,true));
 audio.addEventListener('timeupdate', () => { $('elapsed').textContent = time(audio.currentTime); $('duration').textContent = time(audio.duration); $('seek').value = audio.duration ? audio.currentTime / audio.duration * 100 : 0; updateLyrics(); }); audio.addEventListener('loadedmetadata', () => $('duration').textContent = time(audio.duration)); $('seek').addEventListener('input', e => { if (Number.isFinite(audio.duration)) audio.currentTime = e.target.value / 100 * audio.duration; });
