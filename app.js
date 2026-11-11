@@ -8,7 +8,7 @@ let filmAnimation, filmOverlay, tabAnimation, selectedTab = 'tracks', playbackRe
 function animateFilm(direction) {
   filmAnimation?.cancel();
   filmOverlay?.remove();
-  if (reducedMotion.matches) return;
+  // Track-change film motion is explicitly requested, including on reduced-motion systems.
   const overlay = document.createElement('span');
   overlay.className = 'film-window';
   overlay.setAttribute('aria-hidden', 'true');
@@ -23,9 +23,9 @@ function animateFilm(direction) {
   }
   overlay.append(strip); $('info').append(overlay); filmOverlay = overlay;
   const frames = direction < 0
-    ? [{ transform: 'translateY(-50%)', filter: 'blur(0)' }, { transform: 'translateY(-25%)', filter: 'blur(1.5px)', offset: .45 }, { transform: 'translateY(0)', filter: 'blur(0)' }]
-    : [{ transform: 'translateY(0)', filter: 'blur(0)' }, { transform: 'translateY(-25%)', filter: 'blur(1.5px)', offset: .45 }, { transform: 'translateY(-50%)', filter: 'blur(0)' }];
-  const animation = strip.animate(frames, { duration: 620, easing: 'cubic-bezier(.65,0,.25,1)', fill: 'forwards' });
+    ? [{ transform: 'translateX(-50%)', filter: 'blur(0)' }, { transform: 'translateX(-25%)', filter: 'blur(1.5px)', offset: .45 }, { transform: 'translateX(0)', filter: 'blur(0)' }]
+    : [{ transform: 'translateX(0)', filter: 'blur(0)' }, { transform: 'translateX(-25%)', filter: 'blur(1.5px)', offset: .45 }, { transform: 'translateX(-50%)', filter: 'blur(0)' }];
+  const animation = strip.animate(frames, { duration: 1000, easing: 'cubic-bezier(.65,0,.25,1)', fill: 'forwards' });
   filmAnimation = animation;
   animation.finished.then(() => overlay.remove()).catch(() => overlay.remove());
 }
@@ -64,3 +64,5 @@ function tab(which) {
 $('tracks-tab').addEventListener('click',()=>tab('tracks')); $('lyrics-tab').addEventListener('click',()=>tab('lyrics'));
 if (album.introduction.trim()) { $('info').disabled = false; $('intro-text').textContent = album.introduction; $('info').addEventListener('click',()=>$('intro-dialog').showModal()); $('close-dialog').addEventListener('click',()=>$('intro-dialog').close()); }
 if (tracks.length) { ['play','previous','next','seek'].forEach(id => $(id).disabled = false); select(0); } else { renderList(); renderLyrics(); }
+
+
