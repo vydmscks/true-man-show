@@ -50,17 +50,30 @@ $('previous').addEventListener('click', () => { if (audio.currentTime > 5) audio
 const playIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4v16l12-8z"/></svg>'; const pauseIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h4v16H6zm8 0h4v16h-4z"/></svg>';
 audio.addEventListener('play', () => { $('play').innerHTML = pauseIcon; $('play').setAttribute('aria-label','일시정지'); renderList(); }); audio.addEventListener('pause', () => { $('play').innerHTML = playIcon; $('play').setAttribute('aria-label','재생'); renderList(); }); audio.addEventListener('ended', () => select(current+1,true));
 audio.addEventListener('timeupdate', () => { $('elapsed').textContent = time(audio.currentTime); $('duration').textContent = time(audio.duration); $('seek').value = audio.duration ? audio.currentTime / audio.duration * 100 : 0; updateLyrics(); }); audio.addEventListener('loadedmetadata', () => $('duration').textContent = time(audio.duration)); $('seek').addEventListener('input', e => { if (Number.isFinite(audio.duration)) audio.currentTime = e.target.value / 100 * audio.duration; });
+const tabIndicator = document.createElement('span');
+tabIndicator.className = 'tab-indicator';
+tabIndicator.setAttribute('aria-hidden', 'true');
+document.querySelector('.tabs').append(tabIndicator);
+let indicatorAnimation;
 function tab(which) {
   if (which === selectedTab) return;
   selectedTab = which; tabAnimation?.cancel();
   const isTracks = which === 'tracks';
   $('list').hidden = !isTracks; $('lyrics').hidden = isTracks;
-  document.querySelector('.tabs').classList.toggle('show-lyrics', !isTracks);
+  const fromTransform = getComputedStyle(tabIndicator).transform;
+  indicatorAnimation?.cancel();
+  const endTransform = `translateX(${isTracks ? 0 : 100}%) scaleX(1)`;
+  tabIndicator.style.transform = endTransform;
+  indicatorAnimation = tabIndicator.animate([
+    { transform: fromTransform === 'none' ? 'translateX(0) scaleX(1)' : fromTransform },
+    { transform: 'translateX(0) scaleX(2)', offset: .48 },
+    { transform: endTransform }
+  ], { duration: 760, easing: 'cubic-bezier(.4,0,.2,1)' });
   for (const [id, active] of [['tracks-tab',isTracks],['lyrics-tab',!isTracks]]) { $(id).classList.toggle('active',active); $(id).setAttribute('aria-selected',String(active)); }
-  if (!reducedMotion.matches) tabAnimation = $(isTracks ? 'list' : 'lyrics').animate([
+  tabAnimation = $(isTracks ? 'list' : 'lyrics').animate([
     { opacity: 0, transform: `translateX(${isTracks ? -18 : 18}px)` },
     { opacity: 1, transform: 'translateX(0)' }
-  ], { duration: 320, easing: 'cubic-bezier(.22,1,.36,1)' });
+  ], { duration: 600, delay: 100, fill: 'backwards', easing: 'cubic-bezier(.22,1,.36,1)' });
 }
 $('tracks-tab').addEventListener('click',()=>tab('tracks')); $('lyrics-tab').addEventListener('click',()=>tab('lyrics'));
 if (album.introduction.trim()) { $('info').disabled = false; $('intro-text').textContent = album.introduction; $('info').addEventListener('click',()=>$('intro-dialog').showModal()); $('close-dialog').addEventListener('click',()=>$('intro-dialog').close()); }

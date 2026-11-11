@@ -71,10 +71,10 @@ dialog button { float: right; width: 44px; height: 44px; border: 0; background: 
   background: radial-gradient(ellipse at 5% 0%, #dbe9ff0d, transparent 55%);
 }
 .tabs { position: relative; }
-.tabs::after { content: ''; position: absolute; bottom: 0; left: 0; height: 2px; width: 50%; background: #d7e6ff; border-radius: 2px; transition: transform .32s cubic-bezier(.22,1,.36,1); }
-.tabs.show-lyrics::after { transform: translateX(100%); }
+.tab-indicator { position: absolute; bottom: 0; left: 0; height: 2px; width: 50%; background: #fff; border-radius: 2px; transform-origin: left center; pointer-events: none; will-change: transform; }
+
 .tab.active { border-bottom-color: transparent; }
-.tab { transition: color .25s ease; }
+.tab { transition: color .6s ease; }
 .library { overflow: hidden; }
 .album-art { position: relative; }
 .film-window { position: absolute; inset: 0; overflow: hidden; pointer-events: none; background: #08090c; }
@@ -86,6 +86,7 @@ dialog button { float: right; width: 44px; height: 44px; border: 0; background: 
 .film-strip::after { bottom: 0; }
 @media (max-width: 360px) { .player { width: calc(100% - 24px); padding: 16px; border-radius: 24px; } }
 @media (prefers-reduced-motion: reduce) { .tabs::after, .tab { transition: none; } }
+
 
 
 
