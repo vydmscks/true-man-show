@@ -23,9 +23,10 @@ function animateFilm(direction) {
   }
   overlay.append(strip); $('info').append(overlay); filmOverlay = overlay;
   const frames = direction < 0
-    ? [{ transform: 'translateX(-80%)', filter: 'blur(0)' }, { transform: 'translateX(-40%)', filter: 'blur(1.5px)', offset: .45 }, { transform: 'translateX(0)', filter: 'blur(0)' }]
-    : [{ transform: 'translateX(0)', filter: 'blur(0)' }, { transform: 'translateX(-40%)', filter: 'blur(1.5px)', offset: .45 }, { transform: 'translateX(-80%)', filter: 'blur(0)' }];
-  const animation = strip.animate(frames, { duration: 550, easing: 'cubic-bezier(.15,.45,.35,1)', fill: 'forwards' });
+    ? [{ transform: 'translate3d(-80%,0,0)' }, { transform: 'translate3d(0,0,0)' }]
+    : [{ transform: 'translate3d(0,0,0)' }, { transform: 'translate3d(-80%,0,0)' }];
+  overlay.animate([{ opacity: 0 }, { opacity: 1, offset: .08 }, { opacity: 1, offset: .84 }, { opacity: 0 }], { duration: 900, fill: 'forwards' });
+  const animation = strip.animate(frames, { duration: 900, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards' });
   filmAnimation = animation;
   animation.finished.then(() => overlay.remove()).catch(() => overlay.remove());
 }

@@ -78,13 +78,15 @@ dialog button { float: right; width: 44px; height: 44px; border: 0; background: 
 .library { overflow: hidden; }
 .album-art { position: relative; }
 .film-window { position: absolute; inset: 0; overflow: hidden; pointer-events: none; background: #08090c; }
-.film-strip { position: absolute; inset: 0 0 auto; width: 500%; height: 100%; display: flex; flex-direction: row; }
+.film-strip { position: absolute; inset: 0 0 auto; width: 500%; height: 100%; will-change: transform; display: flex; flex-direction: row; }
 .film-frame { position: relative; height: 100%; flex: 0 0 20%; min-width: 0; padding: 0; background: #08090c; }
 .film-frame img { height: 100%; width: 100%; object-fit: cover; border-radius: 0; }
-.film-frame::before, .film-frame::after { content: ''; position: absolute; left: 0; right: 0; height: 16px; border-top: 4px solid #08090c; border-bottom: 4px solid #08090c; background: repeating-linear-gradient(to right, #08090c 0 7px, #bec5cddd 7px 16px, #08090c 16px 24px); }
-.film-frame::before { top: 0; }
-.film-frame::after { bottom: 0; }
+.film-strip::before, .film-strip::after { content: ''; position: absolute; z-index: 2; left: 0; right: 0; height: 16px; border-top: 4px solid #08090c; border-bottom: 4px solid #08090c; background: repeating-linear-gradient(to right, #08090c 0 7px, #bec5cddd 7px 16px, #08090c 16px 24px); }
+.film-strip::before { top: 0; }
+.film-strip::after { bottom: 0; }
 @media (max-width: 360px) { .player { width: calc(100% - 24px); padding: 16px; border-radius: 24px; } }
 @media (prefers-reduced-motion: reduce) { .tabs::after, .tab { transition: none; } }
+
+
 
 
