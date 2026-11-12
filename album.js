@@ -4,18 +4,56 @@ window.ALBUM = {
   introduction: '',
   tracks: [
     {
+      title: '01 (inst.)',
+      artist: '김건우',
+      audio: 'audio/01.mp3'
+    },
+    {
+      title: '쿠키',
+      artist: '안세현',
+      audio: 'audio/02.mp3',
+      lyrics: 'lyrics/02.txt',
+      highlight: '케이크는 무리였어'
+    },
+    {
+      title: '03',
+      artist: '이지환',
+      audio: 'audio/03.mp3'
+    },
+    {
+      title: '04 (inst.)',
+      artist: '최민영',
+      audio: 'audio/04.mp3'
+    },
+    {
       title: 'Nerdy 2',
       artist: '구본정',
       audio: 'audio/05.mp3',
       lyrics: 'lyrics/05.txt',
-      highlight: '' // 이 곡의 핵심 가사 한 줄
+      highlight: '우리 서로 말은 안해도\n눈이 마주치면 웃잖아'
     },
     {
       title: 'Dial-log (Feat. 황병록, 유정훈)',
       artist: '표은찬',
       audio: 'audio/06.wav',
       lyrics: 'lyrics/06.txt',
-      highlight: '' // 이 곡의 핵심 가사 한 줄
+      highlight: '나 너에게 있어 할 말'
+    },
+    {
+      title: '07',
+      artist: '이유진',
+      audio: 'audio/07.mp3',
+      lyrics: 'lyrics/07.txt'
+    },
+    {
+      title: 'Nevermind',
+      artist: '황병록',
+      audio: 'audio/09.mp3'
+    },
+    {
+      title: '10 (inst.)',
+      artist: '최성빈',
+      audio: 'audio/10.mp3'
     },
   ],
 };
