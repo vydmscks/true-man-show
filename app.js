@@ -130,8 +130,33 @@ audio.addEventListener('timeupdate', () => { if (!progressFrame) paintProgress()
 audio.addEventListener('loadedmetadata', paintProgress);
 audio.addEventListener('seeked', paintProgress);
 document.addEventListener('visibilitychange', () => { if (document.hidden) stopProgress(); else resumeProgress(); });
-$('seek').addEventListener('pointerdown', () => { draggingSeek = true; });
-for (const event of ['pointerup','pointercancel']) window.addEventListener(event, () => { draggingSeek = false; paintProgress(); });
+const seek = $('seek');
+let seekPointer = null;
+function seekAtPointer(event) {
+  const bounds = seek.getBoundingClientRect();
+  const fraction = Math.max(0, Math.min(1, (event.clientX - bounds.left - 9) / Math.max(1, bounds.width - 18)));
+  seek.value = fraction * 100;
+  if (Number.isFinite(audio.duration) && audio.duration > 0) audio.currentTime = fraction * audio.duration;
+  paintProgress();
+}
+seek.addEventListener('pointerdown', event => {
+  if (event.button !== 0 || seekPointer !== null) return;
+  event.preventDefault();
+  seek.focus({preventScroll: true});
+  draggingSeek = true; seekPointer = event.pointerId;
+  seek.setPointerCapture(event.pointerId);
+  seekAtPointer(event);
+});
+seek.addEventListener('pointermove', event => { if (event.pointerId === seekPointer) seekAtPointer(event); });
+seek.addEventListener('pointerup', event => {
+  if (event.pointerId !== seekPointer) return;
+  seekAtPointer(event);
+  seek.releasePointerCapture(event.pointerId);
+  seekPointer = null; draggingSeek = false; paintProgress();
+});
+for (const event of ['pointercancel', 'lostpointercapture']) seek.addEventListener(event, () => {
+  seekPointer = null; draggingSeek = false; paintProgress();
+});
 $('seek').addEventListener('input', e => { if (Number.isFinite(audio.duration)) { audio.currentTime = Number(e.target.value) / 100 * audio.duration; paintProgress(); } });
 const tabIndicator = document.createElement('span');
 tabIndicator.className = 'tab-indicator';

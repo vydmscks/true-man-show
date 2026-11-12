@@ -25,7 +25,7 @@
 로컬 전용 모드는 해제되어 로컬과 공개 사이트 모두 `album.js`를 사용합니다. 기존 `album.local.js`는 사용하지 않으며 Git에서도 제외됩니다. `audio/`와 `lyrics/`는 이제 배포 대상입니다.
 
 ```powershell
-python -m http.server 4173 --bind 127.0.0.1
+python preview.py
 ```
 
 미리보기: http://127.0.0.1:4173/
