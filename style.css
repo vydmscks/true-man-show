@@ -1,7 +1,7 @@
 :root { color-scheme: dark; }
 * { box-sizing: border-box; }
-html { min-height: 100%; background: #111318; }
-body { margin: 0; min-height: 100svh; color: #fff; font-family: Arial, 'Noto Sans KR', sans-serif; }
+html { height: 100%; overflow: hidden; background: #111318; }
+body { margin: 0; height: 100dvh; overflow: hidden; color: #fff; font-family: Arial, 'Noto Sans KR', sans-serif; }
 .background { position: fixed; inset: 0; z-index: -1; background: radial-gradient(ellipse at 50% 0%, #1b2029 0%, #14171d 45%, #111318 100%); }
 .intro-screen { position: fixed; inset: 0; background: #111318; display: grid; place-items: center; text-align: center; z-index: 5; animation: disappear .7s ease 1.3s forwards; pointer-events: none; }
 .intro-screen h1 { font-size: clamp(28px,8vw,44px); margin: 24px; }
@@ -57,6 +57,12 @@ dialog button { float: right; width: 44px; height: 44px; border: 0; background: 
   isolation: isolate;
   width: calc(100% - 32px);
   max-width: 440px;
+  height: calc(100dvh - max(16px, env(safe-area-inset-top)) - max(20px, env(safe-area-inset-bottom)));
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior-y: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #ffffff38 transparent;
   margin: max(16px, env(safe-area-inset-top)) auto max(20px, env(safe-area-inset-bottom));
   padding: 20px;
   border: 1px solid #ffffff26;
@@ -76,7 +82,8 @@ dialog button { float: right; width: 44px; height: 44px; border: 0; background: 
 
 .tab.active { border-bottom-color: transparent; }
 .tab { transition: color .6s ease; }
-.library { overflow: hidden; }
+.player > * { flex-shrink: 0; }
+.library { overflow: visible; }
 .album-art { position: relative; }
 .film-window { position: absolute; inset: 0; overflow: hidden; pointer-events: none; background: #08090c; }
 .film-strip { position: absolute; inset: 0 0 auto; width: 500%; height: 100%; will-change: transform; display: flex; flex-direction: row; }

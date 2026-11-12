@@ -86,6 +86,19 @@ function renderLyrics() {
    box.append(p); lyricNodes.push({node:p,parts});
  }); updateLyrics();
 }
+function followActiveLyric(behavior = reducedMotion.matches ? 'instant' : 'smooth') {
+  if (selectedTab !== 'lyrics') return;
+  const active = lyricNodes[Number(lyricSignature)]?.node;
+  if (!active) return;
+  const player = document.querySelector('.player');
+  const bounds = player.getBoundingClientRect();
+  const line = active.getBoundingClientRect();
+  // Scroll only the glass surface, never the document or the browser viewport.
+  player.scrollTo({
+    top: player.scrollTop + line.top - bounds.top - player.clientTop - (player.clientHeight - line.height) / 2,
+    behavior
+  });
+}
 function updateLyrics() {
   let active = -1;
   lyricLines.forEach((line,i) => { if (line.time !== null && line.time <= audio.currentTime) active = i; });
@@ -97,6 +110,7 @@ function updateLyrics() {
       entry.node.classList.toggle('timed-chars', lyricLines[i].parts.some(p=>p.time !== null));
       entry.parts.forEach(span => span.style.removeProperty('--lyric-fill'));
     });
+    followActiveLyric();
   }
   if (active < 0) return;
   const line = lyricLines[active];
@@ -217,6 +231,7 @@ function tab(which) {
   selectedTab = which; tabAnimation?.cancel();
   const isTracks = which === 'tracks';
   $('list').hidden = !isTracks; $('lyrics').hidden = isTracks;
+  if (!isTracks) followActiveLyric();
   const fromTransform = getComputedStyle(tabIndicator).transform;
   indicatorAnimation?.cancel();
   const endTransform = `translateX(${isTracks ? 0 : 100}%) scaleX(1)`;
@@ -233,6 +248,7 @@ function tab(which) {
   ], { duration: 600, delay: 100, fill: 'backwards', easing: 'cubic-bezier(.22,1,.36,1)' });
 }
 $('tracks-tab').addEventListener('click',()=>tab('tracks')); $('lyrics-tab').addEventListener('click',()=>tab('lyrics'));
+window.addEventListener('resize', () => followActiveLyric('instant'));
 if (album.introduction.trim()) { $('info').disabled = false; $('intro-text').textContent = album.introduction; $('info').addEventListener('click',()=>$('intro-dialog').showModal()); $('close-dialog').addEventListener('click',()=>$('intro-dialog').close()); }
 if (tracks.length) { ['play','previous','next','seek'].forEach(id => $(id).disabled = false); select(0); } else { renderList(); renderLyrics(); }
 
