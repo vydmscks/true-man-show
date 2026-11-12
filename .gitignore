@@ -1,3 +1,2 @@
-# Local test recordings and configuration are never published.
-/audio/
+# Previous local test configuration is retained on disk, never loaded or published.
 album.local.js

@@ -43,7 +43,24 @@ function renderLyrics() {
 }
 function updateLyrics() { let active = -1; lyricLines.forEach((l,i) => { if (l.time !== null && l.time <= audio.currentTime) active = i; }); document.querySelectorAll('.lyric-line').forEach((el,i) => el.classList.toggle('active', i === active)); }
 async function loadLyrics(track) { const request = ++lyricRequest; lyricLines = []; renderLyrics(); if (!track.lyrics) return; try { const response = await fetch(track.lyrics); if (!response.ok) throw Error(); const data = await response.text(); if (request !== lyricRequest) return; lyricLines = data.split(/\r?\n/).filter(line => line.trim()).map(line => { const m = line.match(/^\[(\d+):(\d+(?:\.\d+)?)\]\s*(.*)$/); return m ? {time: Number(m[1])*60+Number(m[2]), text:m[3]} : {time:null,text:line}; }); renderLyrics(); } catch { if (request === lyricRequest) { lyricLines = []; renderLyrics(); } } }
-function select(i, autoplay = false) { if (!tracks.length) return; const previous = current; current = (i + tracks.length) % tracks.length; playbackRequest++; const t = tracks[current]; audio.src = t.audio; $('track-title').textContent = t.title; $('track-artist').textContent = t.artist || album.artist; $('elapsed').textContent = $('duration').textContent = '0:00'; $('seek').value = 0; loadLyrics(t); renderList(); if (autoplay) start(); if (current !== previous) animateFilm(i < previous ? -1 : 1); }
+function select(i, autoplay = false) {
+  if (!tracks.length) return;
+  const previous = current;
+  current = (i + tracks.length) % tracks.length;
+  playbackRequest++;
+  const t = tracks[current];
+  audio.src = t.audio;
+  $('track-title').textContent = t.title;
+  $('track-artist').textContent = t.artist || album.artist;
+  const highlight = typeof t.highlight === 'string' ? t.highlight.trim() : '';
+  $('track-highlight').textContent = highlight;
+  $('track-highlight').hidden = !highlight;
+  $('elapsed').textContent = $('duration').textContent = '0:00';
+  $('seek').value = 0;
+  loadLyrics(t); renderList();
+  if (autoplay) start();
+  if (current !== previous) animateFilm(i < previous ? -1 : 1);
+}
 function start() { const request = ++playbackRequest; audio.play().catch(error => { if (request === playbackRequest && error.name !== 'AbortError') $('track-title').textContent = '음원을 재생할 수 없어요'; }); }
 $('play').addEventListener('click', () => audio.paused ? start() : audio.pause());
 const PREVIOUS_TRACK_WINDOW_SECONDS = 3;
@@ -89,6 +106,7 @@ function tab(which) {
 $('tracks-tab').addEventListener('click',()=>tab('tracks')); $('lyrics-tab').addEventListener('click',()=>tab('lyrics'));
 if (album.introduction.trim()) { $('info').disabled = false; $('intro-text').textContent = album.introduction; $('info').addEventListener('click',()=>$('intro-dialog').showModal()); $('close-dialog').addEventListener('click',()=>$('intro-dialog').close()); }
 if (tracks.length) { ['play','previous','next','seek'].forEach(id => $(id).disabled = false); select(0); } else { renderList(); renderLyrics(); }
+
 
 
 
