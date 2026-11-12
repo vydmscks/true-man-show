@@ -2,7 +2,8 @@ const album = window.ALBUM;
 const tracks = album.tracks;
 const $ = id => document.getElementById(id);
 const audio = $('audio');
-let current = 0, lyricLines = [], lyricRequest = 0;
+let current = 0, lyricLines = [], lyricRequest = 0, lyricMessage = '가사가 없습니다', lyricSignature = '';
+let lyricNodes = [];
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 let filmAnimation, filmOverlay, tabAnimation, selectedTab = 'tracks', playbackRequest = 0;
 function animateFilm(direction) {
@@ -38,11 +39,43 @@ function renderList() {
 }
 function renderLyrics() {
  const box = $('lyrics'); box.replaceChildren();
- if (!lyricLines.length) { const p = document.createElement('p'); p.className = 'empty'; p.textContent = '가사가 없습니다'; box.append(p); return; }
- lyricLines.forEach((line, i) => { const p = document.createElement(line.time === null ? 'p' : 'button'); p.className = 'lyric-line'; p.textContent = line.text; if (line.time !== null) p.addEventListener('click', () => { audio.currentTime = line.time; start(); }); box.append(p); }); updateLyrics();
+ lyricNodes = []; lyricSignature = '';
+ if (!lyricLines.length) { const p = document.createElement('p'); p.className = 'empty'; p.textContent = lyricMessage; box.append(p); return; }
+ lyricLines.forEach(line => {
+   const p = document.createElement(line.time === null ? 'p' : 'button'); p.className = 'lyric-line';
+   const parts = line.parts.map(part => { const span = document.createElement('span'); span.textContent = part.text; span.className = 'lyric-part'; p.append(span); return span; });
+   if (line.time !== null) p.addEventListener('click', () => { audio.currentTime = line.time; start(); });
+   box.append(p); lyricNodes.push({node:p,parts});
+ }); updateLyrics();
 }
-function updateLyrics() { let active = -1; lyricLines.forEach((l,i) => { if (l.time !== null && l.time <= audio.currentTime) active = i; }); document.querySelectorAll('.lyric-line').forEach((el,i) => el.classList.toggle('active', i === active)); }
-async function loadLyrics(track) { const request = ++lyricRequest; lyricLines = []; renderLyrics(); if (!track.lyrics) return; try { const response = await fetch(track.lyrics); if (!response.ok) throw Error(); const data = await response.text(); if (request !== lyricRequest) return; lyricLines = data.split(/\r?\n/).filter(line => line.trim()).map(line => { const m = line.match(/^\[(\d+):(\d+(?:\.\d+)?)\]\s*(.*)$/); return m ? {time: Number(m[1])*60+Number(m[2]), text:m[3]} : {time:null,text:line}; }); renderLyrics(); } catch { if (request === lyricRequest) { lyricLines = []; renderLyrics(); } } }
+function updateLyrics() {
+  let active = -1, part = -1;
+  lyricLines.forEach((line,i) => { if (line.time !== null && line.time <= audio.currentTime) active = i; });
+  lyricLines[active]?.parts.forEach((p,i) => { if (p.time !== null && p.time <= audio.currentTime) part = i; });
+  const signature = `${active}:${part}`;
+  if (signature === lyricSignature) return;
+  lyricSignature = signature;
+  lyricNodes.forEach((entry,i) => {
+    entry.node.classList.toggle('active', i === active);
+    entry.node.classList.toggle('timed-chars', lyricLines[i].parts.some(p=>p.time !== null));
+    entry.parts.forEach((span,j) => { span.classList.toggle('sung', i === active && lyricLines[i].parts[j].time !== null && j <= part); span.classList.toggle('current-char', i === active && j === part); });
+  });
+}
+async function loadLyrics(track) {
+  const request = ++lyricRequest; lyricLines = [];
+  lyricMessage = track.lyrics ? '가사를 불러오는 중입니다' : '가사가 없습니다'; renderLyrics();
+  if (!track.lyrics) return;
+  try {
+    const response = await fetch(track.lyrics, {cache:'no-store'});
+    if (!response.ok) throw Error(`HTTP ${response.status}`);
+    const data = await response.text(); if (request !== lyricRequest) return;
+    lyricLines = LyricTiming.parse(data); lyricMessage = '가사가 없습니다'; renderLyrics();
+  } catch {
+    if (request !== lyricRequest) return;
+    lyricMessage = location.protocol === 'file:' ? '파일을 직접 열면 가사를 읽을 수 없습니다. 폴더의 preview.cmd를 실행해 로컬 미리보기로 열어주세요.' : '가사를 불러오지 못했습니다. 가사 파일 경로를 확인하고 새로고침해 주세요.';
+    renderLyrics();
+  }
+}
 function select(i, autoplay = false) {
   if (!tracks.length) return;
   const previous = current;
@@ -77,7 +110,29 @@ $('previous').addEventListener('click', () => {
 $('next').addEventListener('click', () => select(current + 1, true));
 const playIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4v16l12-8z"/></svg>'; const pauseIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h4v16H6zm8 0h4v16h-4z"/></svg>';
 audio.addEventListener('play', () => { $('play').innerHTML = pauseIcon; $('play').setAttribute('aria-label','일시정지'); renderList(); }); audio.addEventListener('pause', () => { $('play').innerHTML = playIcon; $('play').setAttribute('aria-label','재생'); renderList(); }); audio.addEventListener('ended', () => select(current+1,true));
-audio.addEventListener('timeupdate', () => { $('elapsed').textContent = time(audio.currentTime); $('duration').textContent = time(audio.duration); $('seek').value = audio.duration ? audio.currentTime / audio.duration * 100 : 0; updateLyrics(); }); audio.addEventListener('loadedmetadata', () => $('duration').textContent = time(audio.duration)); $('seek').addEventListener('input', e => { if (Number.isFinite(audio.duration)) audio.currentTime = e.target.value / 100 * audio.duration; });
+let progressFrame = 0, draggingSeek = false;
+function paintProgress() {
+  if (!draggingSeek) $('seek').value = Number.isFinite(audio.duration) && audio.duration > 0 ? audio.currentTime / audio.duration * 100 : 0;
+  $('elapsed').textContent = time(audio.currentTime); $('duration').textContent = time(audio.duration);
+  updateLyrics();
+}
+function stopProgress() { cancelAnimationFrame(progressFrame); progressFrame = 0; }
+function animateProgress() {
+  paintProgress();
+  if (!audio.paused && !audio.ended && !document.hidden) progressFrame = requestAnimationFrame(animateProgress);
+  else progressFrame = 0;
+}
+function resumeProgress() { stopProgress(); animateProgress(); }
+audio.addEventListener('play', resumeProgress);
+audio.addEventListener('pause', () => { stopProgress(); paintProgress(); });
+audio.addEventListener('ended', stopProgress);
+audio.addEventListener('timeupdate', () => { if (!progressFrame) paintProgress(); });
+audio.addEventListener('loadedmetadata', paintProgress);
+audio.addEventListener('seeked', paintProgress);
+document.addEventListener('visibilitychange', () => { if (document.hidden) stopProgress(); else resumeProgress(); });
+$('seek').addEventListener('pointerdown', () => { draggingSeek = true; });
+for (const event of ['pointerup','pointercancel']) window.addEventListener(event, () => { draggingSeek = false; paintProgress(); });
+$('seek').addEventListener('input', e => { if (Number.isFinite(audio.duration)) { audio.currentTime = Number(e.target.value) / 100 * audio.duration; paintProgress(); } });
 const tabIndicator = document.createElement('span');
 tabIndicator.className = 'tab-indicator';
 tabIndicator.setAttribute('aria-hidden', 'true');

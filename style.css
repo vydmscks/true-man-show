@@ -95,3 +95,6 @@ dialog button { float: right; width: 44px; height: 44px; border: 0; background: 
 #track-highlight { margin: 18px auto 0; max-width: 32ch; padding: 0 8px; font-size: 14px; font-weight: 400; line-height: 1.8; color: #cbd8ee; overflow-wrap: anywhere; white-space: pre-line; }
 #track-highlight::before { content: '“'; }
 #track-highlight::after { content: '”'; }
+.lyric-line.timed-chars .lyric-part { color: #ffffff68; }
+.lyric-line.timed-chars .lyric-part.sung { color: #e7efff; }
+.lyric-line.timed-chars .lyric-part.current-char { color: #fff; text-shadow: 0 0 12px #b9d6ff80; }
