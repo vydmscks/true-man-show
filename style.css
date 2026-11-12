@@ -77,7 +77,16 @@ dialog button { float: right; width: 44px; height: 44px; border: 0; background: 
   border-radius: inherit;
   background: radial-gradient(ellipse at 5% 0%, #dbe9ff0d, transparent 55%);
 }
-.tabs { position: relative; }
+.tabs {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  flex-shrink: 0;
+  background: #191e27ed;
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border-radius: 12px 12px 0 0;
+}
 .tab-indicator { position: absolute; bottom: 0; left: 0; height: 2px; width: 50%; background: #fff; border-radius: 2px; transform-origin: left center; pointer-events: none; will-change: transform; }
 
 .tab.active { border-bottom-color: transparent; }
