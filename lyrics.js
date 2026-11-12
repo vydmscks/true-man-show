@@ -17,6 +17,21 @@
     const ticks = Math.max(0, Math.round(seconds*100));
     return `${String(Math.floor(ticks/6000)).padStart(2,'0')}:${String(Math.floor(ticks/100)%60).padStart(2,'0')}.${String(ticks%100).padStart(2,'0')}`;
   }
-  root.LyricTiming = {parse,format};
+  function tokenize(parts) {
+    const segmenter = typeof Intl.Segmenter === 'function' ? new Intl.Segmenter('ko', {granularity:'grapheme'}) : null;
+    const tokens = [];
+    for (const part of parts) {
+      const letters = segmenter ? [...segmenter.segment(part.text)].map(s => s.segment) : Array.from(part.text);
+      for (const text of letters) {
+        const previous = tokens.at(-1);
+        // Keep existing distinct timestamps; unstamped English letters form one word.
+        const isWord = value => /^[\p{Script=Latin}\p{Number}\x21-\x7e]+$/u.test(value);
+        if (previous && previous.time === part.time && isWord(previous.text) && isWord(text)) previous.text += text;
+        else tokens.push({text, time:part.time});
+      }
+    }
+    return tokens;
+  }
+  root.LyricTiming = {parse,format,tokenize};
   if (typeof module !== 'undefined') module.exports = root.LyricTiming;
 })(typeof window !== 'undefined' ? window : globalThis);

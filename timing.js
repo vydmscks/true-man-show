@@ -2,7 +2,6 @@ const $ = id => document.getElementById(id);
 const audio = $('timing-audio');
 const tracks = window.ALBUM.tracks;
 let lines = [], tokens = [], selected = 0, history = [], loadId = 0, edited = false, loading = false;
-const graphemes = text => typeof Intl.Segmenter === 'function' ? [...new Intl.Segmenter('ko',{granularity:'grapheme'}).segment(text)].map(s=>s.segment) : Array.from(text);
 const key = () => `ttl-lyric-timing:${tracks[$('song').value]?.audio}`;
 function persist() { if(loading)return; try { localStorage.setItem(key(),JSON.stringify({lines,selected})); } catch {} }
 function rebuild() {
@@ -21,18 +20,18 @@ function rebuild() {
 function refresh(message = '') {
   document.querySelectorAll('.char').forEach((button,i)=>{button.classList.toggle('selected',i===selected);button.classList.toggle('recorded',tokens[i].time!==null);button.title=tokens[i].time===null?'미기록':LyricTiming.format(tokens[i].time);});
   $('exact').value = tokens[selected]?.time ?? '';
-  $('status').textContent = message || `${tokens.filter(t=>t.time!==null).length} / ${tokens.length}글자 기록 · ${selected<tokens.length ? `다음: ${tokens[selected].text}` : '마지막 글자까지 기록했습니다'}`;
+  $('status').textContent = message || `${tokens.filter(t=>t.time!==null).length} / ${tokens.length}개 기록 · ${selected<tokens.length ? `다음: ${tokens[selected].text}` : '마지막까지 기록했습니다'}`;
   persist();
 }
 function prepare() {
   loading = false;
-  lines = LyricTiming.parse($('source').value).map(line=>line.parts.flatMap(part=>graphemes(part.text).map(text=>({text,time:part.time}))));
+  lines = LyricTiming.parse($('source').value).map(line=>LyricTiming.tokenize(line.parts));
   selected=0; history=[]; edited=true; rebuild();
 }
 async function load() {
   const request=++loadId; loading=true; audio.pause(); const track=tracks[$('song').value]; if(!track)return;
   audio.src=track.audio; audio.playbackRate=Number($('speed').value); history=[]; selected=0; lines=[]; edited=false; $('source').value=''; rebuild();
-  try { const saved=JSON.parse(localStorage.getItem(key())||'null'); if(saved?.lines?.length){lines=saved.lines;selected=saved.selected||0;loading=false;rebuild();$('source').value=serialize();return;} } catch {}
+  try { const saved=JSON.parse(localStorage.getItem(key())||'null'); if(saved?.lines?.length){lines=saved.lines.map(line=>LyricTiming.tokenize(line));const pending=lines.flat().filter(t=>!/^\s+$/.test(t.text)).findIndex(t=>t.time===null);selected=pending<0?lines.flat().filter(t=>!/^\s+$/.test(t.text)).length:pending;loading=false;rebuild();$('source').value=serialize();return;} } catch {}
   if(!track.lyrics){loading=false;return;}
   try { const res=await fetch(track.lyrics,{cache:'no-store'}); if(!res.ok)throw Error(); const text=await res.text(); if(request!==loadId||edited)return; $('source').value=text; prepare(); }
   catch { if(request===loadId){loading=false;refresh('가사를 가져오지 못했습니다. 텍스트를 붙여 넣거나 가사 파일을 열어주세요.');} }
@@ -61,7 +60,7 @@ $('file').addEventListener('change',async e=>{const file=e.target.files[0];if(!f
 $('save').addEventListener('click',()=>{
   if(!tokens.length){refresh('먼저 가사를 입력하세요.');return;}
   const url=URL.createObjectURL(new Blob([serialize()],{type:'text/plain;charset=utf-8'})); const a=document.createElement('a');a.href=url;a.download=tracks[$('song').value]?.lyrics?.split('/').pop()||'lyrics.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
-  refresh(`파일을 저장했습니다. ${tokens.filter(t=>t.time===null).length}글자가 아직 미기록 상태입니다.`);
+  refresh(`파일을 저장했습니다. ${tokens.filter(t=>t.time===null).length}개가 아직 미기록 상태입니다.`);
 });
 document.addEventListener('keydown',e=>{
   if(/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)||e.ctrlKey||e.metaKey||e.altKey)return;

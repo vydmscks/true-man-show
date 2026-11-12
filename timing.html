@@ -1,9 +1,9 @@
 <!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>가사 타이밍 편집 — True Man Show</title><link rel="stylesheet" href="timing.css"></head><body><main>
-<a href="./">← 앨범으로</a><h1>글자별 가사 타이밍</h1><p>곡과 가사를 고른 뒤, 재생하면서 <kbd>Space</kbd>로 한 글자씩 시간을 기록하세요. 글자를 누르면 수정할 위치를 바꿀 수 있습니다.</p>
+<a href="./">← 앨범으로</a><h1>가사 타이밍 편집</h1><p>곡과 가사를 고른 뒤, 재생하면서 <kbd>Space</kbd>로 한글은 한 글자씩, 영어는 띄어쓰기 기준으로 한 단어씩 시간을 기록하세요. 가사를 누르면 수정할 위치를 바꿀 수 있습니다.</p>
 <label for="song">곡</label><select id="song"></select><audio id="timing-audio" controls preload="metadata"></audio>
 <label for="speed">재생 속도</label><select id="speed"><option value="1">1배속</option><option value="0.75">0.75배속</option><option value="0.5">0.5배속</option></select>
 <label for="source">가사 (일반 텍스트 또는 타이밍이 있는 가사)</label><textarea id="source" rows="7" placeholder="한 줄에 한 문장씩 입력하세요"></textarea><div class="row"><button id="prepare">가사 적용</button><label class="file">가사 파일 열기<input id="file" type="file" accept=".txt,.lrc,text/plain"></label></div>
-<div class="toolbar"><button id="toggle">재생 / 일시정지 (P)</button><button id="stamp">다음 글자 기록 (Space)</button><button id="undo">되돌리기</button><button id="save">가사 파일 저장</button><div id="status" role="status"></div></div>
-<div id="characters" aria-label="기록할 가사 글자"></div><section class="edit"><label for="exact">선택한 글자의 시간 (초)</label><input id="exact" type="number" min="0" step="0.01"><button id="set-time">시간 수정</button><button id="jump">선택한 글자로 이동</button></section>
+<div class="toolbar"><button id="toggle">재생 / 일시정지 (P)</button><button id="stamp">다음 가사 기록 (Space)</button><button id="undo">되돌리기</button><button id="save">가사 파일 저장</button><div id="status" role="status"></div></div>
+<div id="characters" aria-label="기록할 가사 글자"></div><section class="edit"><label for="exact">선택한 가사의 시간 (초)</label><input id="exact" type="number" min="0" step="0.01"><button id="set-time">시간 수정</button><button id="jump">선택한 가사로 이동</button></section>
 <p class="note">작업은 이 브라우저에 임시 저장됩니다. 완성한 파일은 해당 곡의 lyrics/*.txt에 덮어쓴 뒤 배포하세요. 이 편집기는 서버 파일을 직접 바꾸지 않습니다. 수정한 가사를 새로 적용하면 현재 타이밍 대신 입력한 내용이 사용됩니다.</p>
-</main><script src="album.js?v=6"></script><script src="lyrics.js?v=1"></script><script src="timing.js"></script></body></html>
+</main><script src="album.js?v=6"></script><script src="lyrics.js?v=2"></script><script src="timing.js?v=2"></script></body></html>
