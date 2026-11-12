@@ -38,6 +38,7 @@ input:disabled { opacity: .4; }
 .track:hover,.track.selected { background: #ffffff14; }
 .track-num { flex: 0 0 24px; color: #ffffff99; font-size: 12px; }
 .track-name { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.track-duration { flex: 0 0 38px; text-align: right; white-space: nowrap; font-size: 12px; font-variant-numeric: tabular-nums; color: #ffffff99; }
 .lyric-line { display: block; width: 100%; min-height: 48px; background: none; border: 0; text-align: left; color: #ffffff80; font-size: 16px; line-height: 1.7; padding: 12px; margin: 0; overflow-wrap: anywhere; }
 .lyric-line.active { color: #fff; font-weight: 600; }
 dialog { border: 1px solid #ffffff33; border-radius: 20px; background: #202633; color: white; padding: 24px; width: calc(100% - 32px); max-width: 420px; max-height: 80dvh; overflow: auto; }

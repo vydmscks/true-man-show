@@ -32,10 +32,48 @@ function animateFilm(direction) {
   animation.finished.then(() => overlay.remove()).catch(() => overlay.remove());
 }
 const time = s => Number.isFinite(s) ? `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}` : '0:00';
+const trackDurations = tracks.map(track => Number.isFinite(track.duration) && track.duration > 0 ? track.duration : null);
+function setTrackDuration(index, duration) {
+  if (!Number.isFinite(duration) || duration <= 0) return;
+  trackDurations[index] = duration;
+  const cell = $('list').querySelector(`[data-track-index="${index}"]`);
+  if (cell) cell.textContent = time(duration);
+}
+function loadTrackDurations() {
+  tracks.forEach((track, index) => {
+    if (trackDurations[index] !== null || !track.audio) return;
+    const probe = new Audio();
+    let timeout;
+    const cleanup = () => {
+      clearTimeout(timeout);
+      probe.onloadedmetadata = probe.onerror = null;
+      probe.removeAttribute('src'); probe.load();
+    };
+    probe.preload = 'metadata';
+    probe.onloadedmetadata = () => { setTrackDuration(index, probe.duration); cleanup(); };
+    probe.onerror = cleanup;
+    timeout = setTimeout(cleanup, 30000);
+    probe.src = track.audio;
+  });
+}
 function renderList() {
   const list = $('list'); list.replaceChildren();
   if (!tracks.length) { const empty = document.createElement('p'); empty.className = 'empty'; empty.textContent = '트랙이 없습니다'; list.append(empty); return; }
-  tracks.forEach((track, i) => { const button = document.createElement('button'); button.className = 'track' + (i === current ? ' selected' : ''); button.setAttribute('aria-label', `${track.title} 재생`); const num = document.createElement('span'); num.className = 'track-num'; num.textContent = String(i + 1).padStart(2, '0'); const name = document.createElement('span'); name.className = 'track-name'; name.textContent = track.title; button.append(num, name); button.addEventListener('click', () => { if (i === current) { audio.currentTime = 0; start(); } else select(i, true); }); list.append(button); });
+  tracks.forEach((track, i) => {
+    const button = document.createElement('button');
+    button.className = 'track' + (i === current ? ' selected' : '');
+    const label = `${track.artist || album.artist} - ${track.title}`;
+    button.setAttribute('aria-label', `${label} 재생`);
+    const num = document.createElement('span'); num.className = 'track-num';
+    num.textContent = String(i + 1).padStart(2, '0');
+    const name = document.createElement('span'); name.className = 'track-name'; name.textContent = label;
+    const duration = document.createElement('span'); duration.className = 'track-duration';
+    duration.dataset.trackIndex = i;
+    duration.textContent = trackDurations[i] === null ? '–:––' : time(trackDurations[i]);
+    button.append(num, name, duration);
+    button.addEventListener('click', () => { if (i === current) { audio.currentTime = 0; start(); } else select(i, true); });
+    list.append(button);
+  });
 }
 function renderLyrics() {
  const box = $('lyrics'); box.replaceChildren();
@@ -127,7 +165,7 @@ audio.addEventListener('play', resumeProgress);
 audio.addEventListener('pause', () => { stopProgress(); paintProgress(); });
 audio.addEventListener('ended', stopProgress);
 audio.addEventListener('timeupdate', () => { if (!progressFrame) paintProgress(); });
-audio.addEventListener('loadedmetadata', paintProgress);
+audio.addEventListener('loadedmetadata', () => { setTrackDuration(current, audio.duration); paintProgress(); });
 audio.addEventListener('seeked', paintProgress);
 document.addEventListener('visibilitychange', () => { if (document.hidden) stopProgress(); else resumeProgress(); });
 const seek = $('seek');
@@ -190,3 +228,5 @@ if (tracks.length) { ['play','previous','next','seek'].forEach(id => $(id).disab
 
 
 
+
+loadTrackDurations();
