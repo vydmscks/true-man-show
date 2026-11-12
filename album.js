@@ -26,7 +26,7 @@ window.ALBUM = {
       audio: 'audio/04.mp3'
     },
     {
-      title: 'Nerdy 2',
+      title: 'Nerdy 2 (feat. 유정훈)',
       artist: '구본정',
       audio: 'audio/05.mp3',
       lyrics: 'lyrics/05.txt',
@@ -40,10 +40,11 @@ window.ALBUM = {
       highlight: '나 너에게 있어 할 말'
     },
     {
-      title: '07',
+      title: '해',
       artist: '이유진',
       audio: 'audio/07.mp3',
-      lyrics: 'lyrics/07.txt'
+      lyrics: 'lyrics/07.txt',
+      highlight: '항상 그대로 영원한 이름이 차오를 거야'
     },
     {
       title: 'Nevermind',
