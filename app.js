@@ -91,13 +91,28 @@ function updateLyrics() {
   lyricLines.forEach((line,i) => { if (line.time !== null && line.time <= audio.currentTime) active = i; });
   lyricLines[active]?.parts.forEach((p,i) => { if (p.time !== null && p.time <= audio.currentTime) part = i; });
   const signature = `${active}:${part}`;
-  if (signature === lyricSignature) return;
-  lyricSignature = signature;
-  lyricNodes.forEach((entry,i) => {
-    entry.node.classList.toggle('active', i === active);
-    entry.node.classList.toggle('timed-chars', lyricLines[i].parts.some(p=>p.time !== null));
-    entry.parts.forEach((span,j) => { span.classList.toggle('sung', i === active && lyricLines[i].parts[j].time !== null && j <= part); span.classList.toggle('current-char', i === active && j === part); });
-  });
+  if (signature !== lyricSignature) {
+    lyricSignature = signature;
+    lyricNodes.forEach((entry,i) => {
+      entry.node.classList.toggle('active', i === active);
+      entry.node.classList.toggle('timed-chars', lyricLines[i].parts.some(p=>p.time !== null));
+      entry.parts.forEach((span,j) => {
+        span.classList.toggle('sung', i === active && lyricLines[i].parts[j].time !== null && j < part);
+        span.classList.toggle('current-char', i === active && j === part);
+        span.style.removeProperty('--lyric-fill');
+      });
+    });
+  }
+  if (active < 0 || part < 0) return;
+  const line = lyricLines[active];
+  const start = line.parts[part].time;
+  const next = line.parts.slice(part + 1).find(p => p.time !== null && p.time > start)?.time;
+  // No end stamps are stored: finish a line's last syllable within 650ms,
+  // or at the following line/audio boundary if it comes sooner.
+  const nextLine = lyricLines.slice(active + 1).find(l => l.time !== null && l.time > start)?.time;
+  const end = next ?? Math.min(start + .65, nextLine ?? Infinity, Number.isFinite(audio.duration) && audio.duration > start ? audio.duration : Infinity);
+  const progress = Math.max(0, Math.min(1, (audio.currentTime - start) / Math.max(.01, end - start)));
+  lyricNodes[active].parts[part].style.setProperty('--lyric-fill', `${(progress * 116 - 8).toFixed(2)}%`);
 }
 async function loadLyrics(track) {
   const request = ++lyricRequest; lyricLines = [];

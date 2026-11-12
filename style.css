@@ -98,4 +98,12 @@ dialog button { float: right; width: 44px; height: 44px; border: 0; background: 
 #track-highlight::after { content: '”'; }
 .lyric-line.timed-chars .lyric-part { color: #ffffff68; }
 .lyric-line.timed-chars .lyric-part.sung { color: #e7efff; }
-.lyric-line.timed-chars .lyric-part.current-char { color: #fff; text-shadow: 0 0 12px #b9d6ff80; }
+.lyric-line.timed-chars .lyric-part.current-char {
+  color: transparent;
+  background-image: linear-gradient(to right, #fff calc(var(--lyric-fill, -8%) - 8%), #ffffff68 calc(var(--lyric-fill, -8%) + 8%));
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+.lyric-line { transition: color .25s ease; }
