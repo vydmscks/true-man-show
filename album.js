@@ -52,7 +52,7 @@ window.ALBUM = {
       audio: 'audio/09.mp3'
     },
     {
-      title: '10 (inst.)',
+      title: 'Crank-up (inst.)',
       artist: '최성빈',
       audio: 'audio/10.mp3'
     },
