@@ -81,38 +81,34 @@ function renderLyrics() {
  if (!lyricLines.length) { const p = document.createElement('p'); p.className = 'empty'; p.textContent = lyricMessage; box.append(p); return; }
  lyricLines.forEach(line => {
    const p = document.createElement(line.time === null ? 'p' : 'button'); p.className = 'lyric-line';
-   const parts = line.parts.map(part => { const span = document.createElement('span'); span.textContent = part.text; span.className = 'lyric-part'; p.append(span); return span; });
+   const parts = line.parts.map(part => { const span = document.createElement('span'); span.textContent = part.text; span.className = 'lyric-part'; if (part.time !== null) { const fill = document.createElement('span'); fill.className = 'lyric-fill'; fill.textContent = part.text; fill.setAttribute('aria-hidden', 'true'); span.append(fill); } p.append(span); return span; });
    if (line.time !== null) p.addEventListener('click', () => { audio.currentTime = line.time; start(); });
    box.append(p); lyricNodes.push({node:p,parts});
  }); updateLyrics();
 }
 function updateLyrics() {
-  let active = -1, part = -1;
+  let active = -1;
   lyricLines.forEach((line,i) => { if (line.time !== null && line.time <= audio.currentTime) active = i; });
-  lyricLines[active]?.parts.forEach((p,i) => { if (p.time !== null && p.time <= audio.currentTime) part = i; });
-  const signature = `${active}:${part}`;
+  const signature = String(active);
   if (signature !== lyricSignature) {
     lyricSignature = signature;
     lyricNodes.forEach((entry,i) => {
       entry.node.classList.toggle('active', i === active);
       entry.node.classList.toggle('timed-chars', lyricLines[i].parts.some(p=>p.time !== null));
-      entry.parts.forEach((span,j) => {
-        span.classList.toggle('sung', i === active && lyricLines[i].parts[j].time !== null && j < part);
-        span.classList.toggle('current-char', i === active && j === part);
-        span.style.removeProperty('--lyric-fill');
-      });
+      entry.parts.forEach(span => span.style.removeProperty('--lyric-fill'));
     });
   }
-  if (active < 0 || part < 0) return;
+  if (active < 0) return;
   const line = lyricLines[active];
-  const start = line.parts[part].time;
-  const next = line.parts.slice(part + 1).find(p => p.time !== null && p.time > start)?.time;
-  // No end stamps are stored: finish a line's last syllable within 650ms,
-  // or at the following line/audio boundary if it comes sooner.
-  const nextLine = lyricLines.slice(active + 1).find(l => l.time !== null && l.time > start)?.time;
-  const end = next ?? Math.min(start + .65, nextLine ?? Infinity, Number.isFinite(audio.duration) && audio.duration > start ? audio.duration : Infinity);
-  const progress = Math.max(0, Math.min(1, (audio.currentTime - start) / Math.max(.01, end - start)));
-  lyricNodes[active].parts[part].style.setProperty('--lyric-fill', `${(progress * 116 - 8).toFixed(2)}%`);
+  line.parts.forEach((part,j) => {
+    if (part.time === null) return;
+    const start = part.time;
+    const next = line.parts.slice(j + 1).find(p => p.time !== null && p.time > start)?.time;
+    // Let rapid syllables overlap slightly so the wipe remains visible.
+    const duration = next === undefined ? .65 : Math.max(.3, next - start);
+    const progress = Math.max(0, Math.min(1, (audio.currentTime - start) / duration));
+    lyricNodes[active].parts[j].style.setProperty('--lyric-fill', `${(progress * 100).toFixed(2)}%`);
+  });
 }
 async function loadLyrics(track) {
   const request = ++lyricRequest; lyricLines = [];
