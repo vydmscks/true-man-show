@@ -4,7 +4,7 @@ window.ALBUM = {
   introduction: '',
   tracks: [
     {
-      title: '01 (inst.)',
+      title: 'Just a Daydream.. (inst.)',
       artist: '김건우',
       audio: 'audio/01.mp3'
     },
@@ -33,14 +33,14 @@ window.ALBUM = {
       highlight: '우리 서로 말은 안해도\n눈이 마주치면 웃잖아'
     },
     {
-      title: 'Dial-log (Feat. 황병록, 유정훈)',
+      title: 'Dial-Log (Feat. 황병록, 유정훈)',
       artist: '표은찬',
       audio: 'audio/06.wav',
       lyrics: 'lyrics/06.txt',
       highlight: '나 너에게 있어 할 말'
     },
     {
-      title: '해',
+      title: '해 (Vocals by 문소연)',
       artist: '이유진',
       audio: 'audio/07.mp3',
       lyrics: 'lyrics/07.txt',
