@@ -21,7 +21,7 @@ window.ALBUM = {
       audio: 'audio/03.mp3'
     },
     {
-      title: '04 (inst.)',
+      title: 'Nocturna (inst.)',
       artist: '최민영',
       audio: 'audio/04.mp3'
     },
