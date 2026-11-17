@@ -16,9 +16,11 @@ window.ALBUM = {
       highlight: '케이크는 무리였어'
     },
     {
-      title: '03',
+      title: '10:23',
       artist: '이지환',
-      audio: 'audio/03.mp3'
+      audio: 'audio/03.mp3',
+      lyrics: 'lyrics/03.txt',
+      highlight: '처음부터 이런 일이 있을 줄 몰랐어'
     },
     {
       title: 'Nocturna (inst.)',
