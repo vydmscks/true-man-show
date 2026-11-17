@@ -9,7 +9,7 @@ window.ALBUM = {
       audio: 'audio/01.mp3'
     },
     {
-      title: '쿠키',
+      title: '쿠키 (重音テト/足立レイ)',
       artist: '안세현',
       audio: 'audio/02.mp3',
       lyrics: 'lyrics/02.txt',
@@ -49,7 +49,7 @@ window.ALBUM = {
       highlight: '항상 그대로 영원한 이름이 차오를 거야'
     },
     {
-      title: 'Nevermind',
+      title: 'Nevermind (feat. 이건우)',
       artist: '황병록',
       audio: 'audio/09.mp3'
     },
