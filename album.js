@@ -51,7 +51,9 @@ window.ALBUM = {
     {
       title: 'Nevermind (feat. 이건우)',
       artist: '황병록',
-      audio: 'audio/09.mp3'
+      audio: 'audio/09.mp3',
+      lyrics: 'lyrics/09.txt',
+      highlight: 'i dont care about people say'
     },
     {
       title: 'Crank-up (inst.)',
