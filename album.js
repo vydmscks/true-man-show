@@ -53,7 +53,7 @@ window.ALBUM = {
       artist: '황병록',
       audio: 'audio/09.mp3',
       lyrics: 'lyrics/09.txt',
-      highlight: 'I dont care about people say'
+      highlight: 'I don\'t care about people say'
     },
     {
       title: 'Crank-up (inst.)',
